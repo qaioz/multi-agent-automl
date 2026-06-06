@@ -34,7 +34,7 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
 | u02 | Fetch + commit official dataset with fingerprint check | CSV committed; 1246×23 + known dirt markers confirmed | — | verified | [u02](units/u02.md) |
 | u03 | `EventLog` (`events.jsonl` writer, 9 event types) + console renderer | pytest round-trips all event types; readable console lines | `SHOW-WORK` | verified | [u03](units/u03.md) |
 | u04 | Orchestrator skeleton (run-dir, raw snapshot, stage sequencing) | dummy no-LLM run creates `runs/<ts>/` with snapshot + ordered events | — | verified | [u04](units/u04.md) |
-| u05 | Gemini wiring + generic agent loop (**nag: API key**) | toy agent: call → result → `finish`, fully logged, real API | `NO-HARDCODE` `SHOW-WORK` | planned | — |
+| u05 | Gemini wiring + generic agent loop (**nag: API key**) | toy agent: call → result → `finish`, fully logged, real API | `NO-HARDCODE` `SHOW-WORK` | verified | [u05](units/u05.md) |
 | u06 | Cleaner toolset (generic verbs) | pytest drives every tool on the real CSV, no LLM | `NO-HARDCODE` | planned | — |
 | u07 | Cleaner stage green on real dataset | `01_clean_data.csv` + decisions-table report; transcript traceable | `NO-HARDCODE` `SHOW-WORK` | planned | — |
 | u08 | Feature-Engineer toolset | pytest drives every FE tool, no LLM | `NO-HARDCODE` | planned | — |
@@ -65,6 +65,10 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
 - **2026-06-06** — **u04 verified.** `handoff.py` + `orchestrator.py` (run-dir, snapshot, generic
   fingerprint, stage sequencing, failure path); 4 tests, suite 19-green; real-CSV dummy run OK.
   Next: **u05** (Gemini wiring — key already present in `.env`, verify before nagging).
+- **2026-06-06** — **u05 verified, no nag needed** (the `.env` key works — live-tested before
+  nagging). `llm.py` + `agent.py` (generic loop, finish_guard hook, malformed-call feedback);
+  SDK surface verified against installed google-genai 2.8.0; 3 tests (2 live), suite 22-green;
+  live toy transcript eyeballed. Next: **u06** (Cleaner toolset, no LLM).
 
 ## Resume here
 
