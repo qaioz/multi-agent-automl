@@ -38,7 +38,7 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
 | u06 | Cleaner toolset (generic verbs) | pytest drives every tool on the real CSV, no LLM | `NO-HARDCODE` | verified | [u06](units/u06.md) |
 | u07 | Cleaner stage green on real dataset | `01_clean_data.csv` + decisions-table report; transcript traceable | `NO-HARDCODE` `SHOW-WORK` | verified | [u07](units/u07.md) |
 | u08 | Feature-Engineer toolset | pytest drives every FE tool, no LLM | `NO-HARDCODE` | verified | [u08](units/u08.md) |
-| u09 | Feature-Engineer stage green | `02_engineered_data.csv` with ≥1 justified domain feature | `NO-HARDCODE` `SHOW-WORK` | planned | — |
+| u09 | Feature-Engineer stage green | `02_engineered_data.csv` with ≥1 justified domain feature | `NO-HARDCODE` `SHOW-WORK` | verified | [u09](units/u09.md) |
 | u10 | Sandboxed `execute_python_code` (120 s, verbatim capture) | pytest: ok / crash / timeout cases return verbatim output | `SHOW-WORK` | planned | — |
 | u11 | **Trainer stage green (feedback loop — centerpiece)** | ≥2 executions, each followed by reasoning quoting the output; history ≥2 iters; min-2/max-6 enforced | `NO-HARDCODE` `SHOW-WORK` | planned | — |
 | u12 | Report stage (one LLM call → `report.md`) | report covers raw → transformations → iteration metrics → limitations | `SHOW-WORK` | planned | — |
@@ -81,6 +81,10 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
 - **2026-06-06** — **u08 verified.** `tools/base.py` extracted (shared verbs; u06 tests green
   untouched) + `tools/features.py` (6 FE verbs, numeric coercion, /0 guard). 16 real-CSV tests;
   suite 54-green. Next: **u09** (FE stage green, real LLM).
+- **2026-06-06** — **u09 verified.** Full 2-stage run, zero errors: 5 agent-invented domain
+  features (compensation total, raise/bonus ratios, DE-experience ratio, tech count), principled
+  encodings, collinear intermediates self-removed. Traceability checker made batch-aware → 0
+  violations. Next: **u10** (sandbox, no LLM).
 
 ## Resume here
 

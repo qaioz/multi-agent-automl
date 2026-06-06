@@ -11,7 +11,9 @@ from .agent import run_agent
 from .handoff import Handoff
 from .orchestrator import StageContext
 from .prompts.cleaner import CLEANER_SYSTEM
+from .prompts.features import FEATURE_ENGINEER_SYSTEM
 from .tools.cleaner import CleanerTools
+from .tools.features import FeatureTools
 
 CLEANER_TASK = (
     "Clean the dataset in your working dataframe. Start by inspecting its metadata. "
@@ -38,4 +40,35 @@ def cleaner_stage(ctx: StageContext) -> Handoff:
         "the dataframe state at cap was saved — see events.jsonl for its work)"
     )
     (ctx.run_dir / "01_cleaner_report.md").write_text(report, encoding="utf-8")
+    return Handoff(csv_path=csv_path, report_markdown=report)
+
+
+FE_TASK_TEMPLATE = (
+    "Engineer features on the cleaned dataset in your working dataframe. Start by "
+    "inspecting its metadata. Remember the protocol: every tool call must be accompanied "
+    "by a short plain-text sentence of rationale, and every mutation must be justified by "
+    "tool output from an earlier turn. Finish with your strategy report.\n\n"
+    "The Cleaner's handoff report:\n\n{upstream_report}"
+)
+
+
+def fe_stage(ctx: StageContext) -> Handoff:
+    if ctx.upstream is None:
+        raise ValueError("feature_engineer stage requires the cleaner's handoff")
+    tools = FeatureTools(ctx.upstream.csv_path)
+    result = run_agent(
+        agent_name="feature_engineer",
+        system_prompt=FEATURE_ENGINEER_SYSTEM,
+        task=FE_TASK_TEMPLATE.format(upstream_report=ctx.upstream.report_markdown),
+        tools=tools.tooldefs(),
+        log=ctx.log,
+        max_turns=60,
+    )
+    csv_path = ctx.run_dir / "02_engineered_data.csv"
+    tools.save(csv_path)
+    report = result.report_markdown if result.finished else (
+        "# Feature engineering report\n\n(agent hit the turn cap before finishing; "
+        "the dataframe state at cap was saved — see events.jsonl for its work)"
+    )
+    (ctx.run_dir / "02_strategy_report.md").write_text(report, encoding="utf-8")
     return Handoff(csv_path=csv_path, report_markdown=report)
