@@ -12,3 +12,6 @@ runs/
 
 # OS noise
 .DS_Store
+
+# Claude Code session state
+.claude/

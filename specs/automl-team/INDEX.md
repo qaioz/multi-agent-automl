@@ -31,8 +31,8 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
 | id | Title | Done when | Graded | Status | Unit file |
 |---|---|---|---|---|---|
 | u01 | Project scaffold (uv `pyproject.toml`, `.gitignore`, `.env.example`, package skeleton) | `uv sync` ok; `import automl_team` ok; `runs/`/`.env` ignored | — | verified | [u01](units/u01.md) |
-| u02 | Fetch + commit official dataset with fingerprint check | CSV committed; 1246×23 + known dirt markers confirmed | — | planned | — |
-| u03 | `EventLog` (`events.jsonl` writer, 9 event types) + console renderer | pytest round-trips all event types; readable console lines | `SHOW-WORK` | planned | — |
+| u02 | Fetch + commit official dataset with fingerprint check | CSV committed; 1246×23 + known dirt markers confirmed | — | verified | [u02](units/u02.md) |
+| u03 | `EventLog` (`events.jsonl` writer, 9 event types) + console renderer | pytest round-trips all event types; readable console lines | `SHOW-WORK` | verified | [u03](units/u03.md) |
 | u04 | Orchestrator skeleton (run-dir, raw snapshot, stage sequencing) | dummy no-LLM run creates `runs/<ts>/` with snapshot + ordered events | — | planned | — |
 | u05 | Gemini wiring + generic agent loop (**nag: API key**) | toy agent: call → result → `finish`, fully logged, real API | `NO-HARDCODE` `SHOW-WORK` | planned | — |
 | u06 | Cleaner toolset (generic verbs) | pytest drives every tool on the real CSV, no LLM | `NO-HARDCODE` | planned | — |
@@ -56,6 +56,12 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
   `pyproject.toml` + `uv sync` green, package skeleton imports, `.env.example`. macOS prereq found:
   `brew install libomp` for xgboost (→ README in u17). A real `GEMINI_API_KEY` already sits in
   `.env` — u05 should verify it before nagging. Next: **u02** (dataset fetch + fingerprint).
+- **2026-06-06** — **u02 verified.** Dataset committed (`data/IT_Salary_Survey_EU_2020.csv`,
+  1246×23) + `tests/test_dataset_fingerprint.py` 6/6 green (all dirt markers confirmed). Commits
+  `306c4bb` (u01) / `b77989d` (u02). Real header recorded in u02.md. Next: **u03** (EventLog).
+- **2026-06-06** — **u03 verified.** `events.py` (EventLog + read_events) + `console.py` renderer;
+  9 round-trip tests, suite 15-green. pytest needed `pythonpath = ["."]` in pyproject (flat
+  layout). Next: **u04** (orchestrator skeleton).
 
 ## Resume here
 
