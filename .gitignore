@@ -1,0 +1,14 @@
+# Secrets — never commit
+.env
+
+# Python / uv
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+
+# Generated run artifacts (deliverable exhibit lives in examples/, which IS committed)
+runs/
+
+# OS noise
+.DS_Store

@@ -1,0 +1,66 @@
+# INDEX — Multi-Agent AutoML Team (living state)
+
+> **The** entry point. Reading this file alone = knowing where the build stands.
+> Resume command: **`read specs/automl-team/INDEX.md and continue`** (the loop prompt:
+> [`../prompts/loop.md`](../prompts/loop.md); the method: [`../PROCESS.md`](../PROCESS.md)).
+
+## Context
+
+Assignment 2: an autonomous AI data-science team — **Cleaner → Feature Engineer → Trainer** (three
+Gemini agents on one generic function-calling loop) — processes the committed IT Salary Survey EU
+2020 dataset end-to-end with zero human input after launch. Every data-science decision is the
+LLM's, reasoned over tool output (**`NO-HARDCODE`**); every decision lands in `events.jsonl` with
+its evidence (**`SHOW-WORK`**); the Trainer runs a generate → execute → read-own-output → react
+loop (the graded centerpiece). Deliverables: pipeline code, transcripts, a generated `report.md`,
+and a Streamlit live/replay viewer; one exhibit run committed under `examples/`.
+
+## Documents
+
+- [`spec.md`](spec.md) — WHAT/WHY, acceptance criteria (**Status: Approved**)
+- [`DESIGN.md`](DESIGN.md) — drawn architecture, handoff contract, Trainer loop, risks
+- [`plan.md`](plan.md) — implementation insights + the work-unit decomposition
+- [`../../Assignment.md`](../../Assignment.md) — the graded requirements
+- [`../PRINCIPLES.md`](../PRINCIPLES.md) — the constitution (incl. graded `NO-HARDCODE` / `SHOW-WORK`)
+- `units/<id>.md` — per-unit plan/test/result records (created as each unit is taken)
+
+## Unit table
+
+Status: `planned → implemented → verified` · or `blocked-on-user` (nag pending). A unit is done
+only at `verified`. Work top-to-bottom: **the current unit is the first not-`verified` row.**
+
+| id | Title | Done when | Graded | Status | Unit file |
+|---|---|---|---|---|---|
+| u01 | Project scaffold (uv `pyproject.toml`, `.gitignore`, `.env.example`, package skeleton) | `uv sync` ok; `import automl_team` ok; `runs/`/`.env` ignored | — | verified | [u01](units/u01.md) |
+| u02 | Fetch + commit official dataset with fingerprint check | CSV committed; 1246×23 + known dirt markers confirmed | — | planned | — |
+| u03 | `EventLog` (`events.jsonl` writer, 9 event types) + console renderer | pytest round-trips all event types; readable console lines | `SHOW-WORK` | planned | — |
+| u04 | Orchestrator skeleton (run-dir, raw snapshot, stage sequencing) | dummy no-LLM run creates `runs/<ts>/` with snapshot + ordered events | — | planned | — |
+| u05 | Gemini wiring + generic agent loop (**nag: API key**) | toy agent: call → result → `finish`, fully logged, real API | `NO-HARDCODE` `SHOW-WORK` | planned | — |
+| u06 | Cleaner toolset (generic verbs) | pytest drives every tool on the real CSV, no LLM | `NO-HARDCODE` | planned | — |
+| u07 | Cleaner stage green on real dataset | `01_clean_data.csv` + decisions-table report; transcript traceable | `NO-HARDCODE` `SHOW-WORK` | planned | — |
+| u08 | Feature-Engineer toolset | pytest drives every FE tool, no LLM | `NO-HARDCODE` | planned | — |
+| u09 | Feature-Engineer stage green | `02_engineered_data.csv` with ≥1 justified domain feature | `NO-HARDCODE` `SHOW-WORK` | planned | — |
+| u10 | Sandboxed `execute_python_code` (120 s, verbatim capture) | pytest: ok / crash / timeout cases return verbatim output | `SHOW-WORK` | planned | — |
+| u11 | **Trainer stage green (feedback loop — centerpiece)** | ≥2 executions, each followed by reasoning quoting the output; history ≥2 iters; min-2/max-6 enforced | `NO-HARDCODE` `SHOW-WORK` | planned | — |
+| u12 | Report stage (one LLM call → `report.md`) | report covers raw → transformations → iteration metrics → limitations | `SHOW-WORK` | planned | — |
+| u13 | One-command headless run (milestone) | `run_pipeline.py --data …` completes all stages, full artifact set | — | planned | — |
+| u14 | Streamlit replay mode (no API key) | past run renders: stepper, transcript, df tabs, metrics chart, reports | `SHOW-WORK` | planned | — |
+| u15 | Streamlit live mode (~2×/s tail) | a live run visibly progresses in the UI; no agent-influencing controls | — | planned | — |
+| u16 | Second-CSV smoke test (stages 1–2, zero code changes) | different-schema CSV completes Cleaner + FE untouched | `NO-HARDCODE` | planned | — |
+| u17 | Exhibit + hardening (**nag: human quality judgment**) | hardcode-grep clean; exhibit run committed to `examples/` + replayable; README done; human approved | `NO-HARDCODE` `SHOW-WORK` | planned | — |
+
+## Log
+
+- **2026-06-06** — Phase 2 complete: `plan.md` + this INDEX written from the Approved spec.
+  Repo is greenfield (no product code yet). No unit started.
+- **2026-06-06** — **u01 verified.** Scaffold up: `.gitignore` (`.env` was exposed — now ignored),
+  `pyproject.toml` + `uv sync` green, package skeleton imports, `.env.example`. macOS prereq found:
+  `brew install libomp` for xgboost (→ README in u17). A real `GEMINI_API_KEY` already sits in
+  `.env` — u05 should verify it before nagging. Next: **u02** (dataset fetch + fingerprint).
+
+## Resume here
+
+1. Read [`plan.md`](plan.md) (insights first), then [`DESIGN.md`](DESIGN.md) + [`spec.md`](spec.md).
+2. Take the first not-`verified` unit above (**currently: u01**); write `units/<id>.md`; implement;
+   self-test; update this table + the log.
+3. Nag (`./nag.sh`) at every human-only gate (u05 API key, u17 exhibit judgment) and when the whole
+   build finishes.

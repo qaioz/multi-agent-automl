@@ -1,0 +1,16 @@
+[project]
+name = "automl-team"
+version = "0.1.0"
+description = "Assignment 2: a three-agent autonomous AutoML team (Cleaner → Feature Engineer → Trainer) with a self-correcting Trainer loop"
+requires-python = ">=3.11"
+dependencies = [
+    "google-genai>=1.0",
+    "pandas>=2.2",
+    "xgboost>=2.1",
+    "scikit-learn>=1.5",
+    "streamlit>=1.40",
+    "python-dotenv>=1.0",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.3"]
