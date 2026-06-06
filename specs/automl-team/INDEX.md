@@ -37,7 +37,7 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
 | u05 | Gemini wiring + generic agent loop (**nag: API key**) | toy agent: call → result → `finish`, fully logged, real API | `NO-HARDCODE` `SHOW-WORK` | verified | [u05](units/u05.md) |
 | u06 | Cleaner toolset (generic verbs) | pytest drives every tool on the real CSV, no LLM | `NO-HARDCODE` | verified | [u06](units/u06.md) |
 | u07 | Cleaner stage green on real dataset | `01_clean_data.csv` + decisions-table report; transcript traceable | `NO-HARDCODE` `SHOW-WORK` | verified | [u07](units/u07.md) |
-| u08 | Feature-Engineer toolset | pytest drives every FE tool, no LLM | `NO-HARDCODE` | planned | — |
+| u08 | Feature-Engineer toolset | pytest drives every FE tool, no LLM | `NO-HARDCODE` | verified | [u08](units/u08.md) |
 | u09 | Feature-Engineer stage green | `02_engineered_data.csv` with ≥1 justified domain feature | `NO-HARDCODE` `SHOW-WORK` | planned | — |
 | u10 | Sandboxed `execute_python_code` (120 s, verbatim capture) | pytest: ok / crash / timeout cases return verbatim output | `SHOW-WORK` | planned | — |
 | u11 | **Trainer stage green (feedback loop — centerpiece)** | ≥2 executions, each followed by reasoning quoting the output; history ≥2 iters; min-2/max-6 enforced | `NO-HARDCODE` `SHOW-WORK` | planned | — |
@@ -78,6 +78,9 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
   1227×23 clean CSV, 25 KB decisions-table report, 29 mutations / 0 traceability violations
   (programmatic events.jsonl check). Transcript shows live self-correction off tool errors.
   Next: **u08** (FE toolset, no LLM).
+- **2026-06-06** — **u08 verified.** `tools/base.py` extracted (shared verbs; u06 tests green
+  untouched) + `tools/features.py` (6 FE verbs, numeric coercion, /0 guard). 16 real-CSV tests;
+  suite 54-green. Next: **u09** (FE stage green, real LLM).
 
 ## Resume here
 

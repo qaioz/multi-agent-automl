@@ -14,57 +14,21 @@ from __future__ import annotations
 
 import ast
 import json
-from pathlib import Path
 
 import pandas as pd
 
 from ..agent import ToolDef
+from .base import COLUMN_PARAM, DataFrameTools, dumps, is_texty
 
-_SAMPLE_VALUES = 5
 _TOP_CATEGORIES = 20
 IMPUTE_STRATEGIES = ("mean", "median", "mode", "constant")
 _CONDITION_OPS = (">", ">=", "<", "<=", "==", "!=")
 
 
-def _dumps(obj) -> str:
-    return json.dumps(obj, ensure_ascii=False, default=str)
-
-
-class CleanerTools:
-    """Holds the Cleaner stage's working dataframe; exposes the generic verbs."""
-
-    def __init__(self, csv_path: str | Path):
-        self.df = pd.read_csv(csv_path)
-
-    # -- helpers -------------------------------------------------------------
-
-    def _require_column(self, column: str) -> str:
-        if column not in self.df.columns:
-            raise ValueError(
-                f"unknown column {column!r}. Columns (copy exactly, incl. any "
-                f"spaces/unicode): {list(self.df.columns)}"
-            )
-        return column
+class CleanerTools(DataFrameTools):
+    """The Cleaner stage's verbs (plus the shared metadata/drop/save)."""
 
     # -- read tools ----------------------------------------------------------
-
-    def inspect_metadata(self) -> str:
-        df = self.df
-        return _dumps({
-            "rows": int(df.shape[0]),
-            "cols": int(df.shape[1]),
-            "columns": [
-                {
-                    "name": c,
-                    "dtype": str(df[c].dtype),
-                    "missing": int(df[c].isna().sum()),
-                    "missing_frac": round(float(df[c].isna().mean()), 4),
-                    "nunique": int(df[c].nunique()),
-                    "sample_values": [v for v in df[c].dropna().unique()[:_SAMPLE_VALUES]],
-                }
-                for c in df.columns
-            ],
-        })
 
     def get_column_stats(self, column: str) -> str:
         col = self.df[self._require_column(column)]
@@ -85,7 +49,7 @@ class CleanerTools:
             info["top_values"] = {str(k): int(v) for k, v in counts.items()}
             if col.nunique() > _TOP_CATEGORIES:
                 info["note"] = f"showing top {_TOP_CATEGORIES} of {col.nunique()} values"
-        return _dumps(info)
+        return dumps(info)
 
     # -- write tools ---------------------------------------------------------
 
@@ -96,7 +60,7 @@ class CleanerTools:
         if strategy not in IMPUTE_STRATEGIES:
             raise ValueError(f"unknown strategy {strategy!r}; choose one of {IMPUTE_STRATEGIES}")
         if n_missing == 0:
-            return _dumps({"column": column, "filled": 0, "note": "no missing values"})
+            return dumps({"column": column, "filled": 0, "note": "no missing values"})
         if strategy in ("mean", "median"):
             if not pd.api.types.is_numeric_dtype(col):
                 raise ValueError(
@@ -113,13 +77,8 @@ class CleanerTools:
                 raise ValueError("strategy 'constant' requires the 'value' argument")
             fill = value
         self.df[column] = col.fillna(fill)
-        return _dumps({"column": column, "strategy": strategy, "fill_value": fill,
-                       "filled": n_missing})
-
-    def drop_column(self, column: str) -> str:
-        self._require_column(column)
-        self.df = self.df.drop(columns=[column])
-        return _dumps({"dropped": column, "remaining_cols": int(self.df.shape[1])})
+        return dumps({"column": column, "strategy": strategy, "fill_value": fill,
+                      "filled": n_missing})
 
     def drop_rows(self, column: str, condition: str) -> str:
         """Drop rows where `column` matches `condition`.
@@ -158,17 +117,15 @@ class CleanerTools:
             }[op]
         self.df = self.df[~mask.fillna(False)]
         dropped = before - int(self.df.shape[0])
-        return _dumps({"column": column, "condition": cond, "rows_dropped": dropped,
-                       "rows_remaining": int(self.df.shape[0])})
+        return dumps({"column": column, "condition": cond, "rows_dropped": dropped,
+                      "rows_remaining": int(self.df.shape[0])})
 
     def normalize_categories(self, column: str, mapping: str | None = None) -> str:
         """Without mapping: strip whitespace + casefold every value. With mapping
         (a JSON object string {"old": "new", …}): apply exact replacements."""
         self._require_column(column)
         col = self.df[column]
-        is_texty = (pd.api.types.is_string_dtype(col) or pd.api.types.is_object_dtype(col)
-                    or isinstance(col.dtype, pd.CategoricalDtype))
-        if not is_texty:
+        if not is_texty(col):
             raise ValueError(f"column {column!r} is {col.dtype}, not categorical/text")
         before = int(col.nunique())
         if mapping is not None:
@@ -184,51 +141,34 @@ class CleanerTools:
                 lambda v: v.strip().casefold() if isinstance(v, str) else v
             )
         after = int(self.df[column].nunique())
-        return _dumps({"column": column, "mode": "mapping" if mapping else "strip+casefold",
-                       "nunique_before": before, "nunique_after": after})
+        return dumps({"column": column, "mode": "mapping" if mapping else "strip+casefold",
+                      "nunique_before": before, "nunique_after": after})
 
-    # -- persistence + declarations -------------------------------------------
-
-    def save(self, path: str | Path) -> Path:
-        path = Path(path)
-        self.df.to_csv(path, index=False)
-        return path
+    # -- declarations ----------------------------------------------------------
 
     def tooldefs(self) -> list[ToolDef]:
-        col_param = {"type": "STRING", "description":
-                     "Exact column name, copied from tool output (mind spaces/unicode)."}
-        return [
-            ToolDef("inspect_metadata",
-                    "Overview of the working dataframe: shape and, per column, dtype, "
-                    "missing count/fraction, distinct count and sample values.",
-                    {"type": "OBJECT", "properties": {}},
-                    self.inspect_metadata),
+        return self._shared_tooldefs() + [
             ToolDef("get_column_stats",
                     "Detailed stats for one column: numeric describe() or top value counts.",
-                    {"type": "OBJECT", "properties": {"column": col_param},
+                    {"type": "OBJECT", "properties": {"column": COLUMN_PARAM},
                      "required": ["column"]},
                     self.get_column_stats),
             ToolDef("impute_missing",
                     "Fill missing values in a column. strategy: one of "
                     "mean|median|mode|constant ('constant' also needs value).",
                     {"type": "OBJECT", "properties": {
-                        "column": col_param,
+                        "column": COLUMN_PARAM,
                         "strategy": {"type": "STRING",
                                      "description": "mean | median | mode | constant"},
                         "value": {"type": "STRING",
                                   "description": "fill value, only for strategy=constant"},
                      }, "required": ["column", "strategy"]},
                     self.impute_missing),
-            ToolDef("drop_column",
-                    "Remove one column from the working dataframe.",
-                    {"type": "OBJECT", "properties": {"column": col_param},
-                     "required": ["column"]},
-                    self.drop_column),
             ToolDef("drop_rows",
                     "Drop rows where the column matches a condition: 'isna' or "
                     "'<op> <literal>' with op in > >= < <= == != (e.g. '> 1e8', \"== 'x'\").",
                     {"type": "OBJECT", "properties": {
-                        "column": col_param,
+                        "column": COLUMN_PARAM,
                         "condition": {"type": "STRING",
                                       "description": "'isna' or e.g. '> 1e8', \"== 'yes'\""},
                      }, "required": ["column", "condition"]},
@@ -238,7 +178,7 @@ class CleanerTools:
                     "+ lowercase all values. With mapping: a JSON object string of exact "
                     "replacements {\"old\": \"new\", …}.",
                     {"type": "OBJECT", "properties": {
-                        "column": col_param,
+                        "column": COLUMN_PARAM,
                         "mapping": {"type": "STRING",
                                     "description": "optional JSON object of replacements"},
                      }, "required": ["column"]},
