@@ -1,0 +1,72 @@
+[
+  {
+    "iteration": 1,
+    "params": {
+      "n_estimators": null,
+      "learning_rate": null,
+      "max_depth": null,
+      "subsample": null,
+      "colsample_bytree": null
+    },
+    "metrics": {
+      "MAE": 14149.525422254555,
+      "MSE": 3974162950.2773433,
+      "R-squared": -5.171947863805047
+    }
+  },
+  {
+    "iteration": 2,
+    "params": {
+      "n_estimators": 500,
+      "learning_rate": 0.05,
+      "max_depth": 5,
+      "subsample": 0.8,
+      "colsample_bytree": 0.8,
+      "random_state": 42,
+      "n_jobs": -1
+    },
+    "metrics": {
+      "MAE": 8665.390696166498,
+      "MSE": 334922530.8357874,
+      "R-squared": 0.47985917422237034
+    }
+  },
+  {
+    "iteration": 3,
+    "params": {
+      "n_estimators": 1000,
+      "learning_rate": 0.01,
+      "max_depth": 7,
+      "subsample": 0.8,
+      "colsample_bytree": 0.8,
+      "gamma": 0.1,
+      "min_child_weight": 1,
+      "random_state": 42,
+      "n_jobs": -1
+    },
+    "metrics": {
+      "MAE": 8951.315299215586,
+      "MSE": 333145173.8710561,
+      "R-squared": 0.48261944214770225
+    }
+  },
+  {
+    "iteration": 5,
+    "params": {
+      "n_estimators": 800,
+      "learning_rate": 0.03,
+      "max_depth": 6,
+      "subsample": 0.8,
+      "colsample_bytree": 0.8,
+      "gamma": 0.1,
+      "min_child_weight": 1,
+      "random_state": 42,
+      "n_jobs": -1
+    },
+    "metrics": {
+      "MAE": 9062.576163967611,
+      "MSE": 341972888.0744641,
+      "R-squared": 0.46890984027639415
+    }
+  }
+]
