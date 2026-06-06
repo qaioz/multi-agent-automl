@@ -42,7 +42,7 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
 | u10 | Sandboxed `execute_python_code` (120 s, verbatim capture) | pytest: ok / crash / timeout cases return verbatim output | `SHOW-WORK` | verified | [u10](units/u10.md) |
 | u11 | **Trainer stage green (feedback loop — centerpiece)** | ≥2 executions, each followed by reasoning quoting the output; history ≥2 iters; min-2/max-6 enforced | `NO-HARDCODE` `SHOW-WORK` | verified | [u11](units/u11.md) |
 | u12 | Report stage (one LLM call → `report.md`) | report covers raw → transformations → iteration metrics → limitations | `SHOW-WORK` | verified | [u12](units/u12.md) |
-| u13 | One-command headless run (milestone) | `run_pipeline.py --data …` completes all stages, full artifact set | — | planned | — |
+| u13 | One-command headless run (milestone) | `run_pipeline.py --data …` completes all stages, full artifact set | — | verified | [u13](units/u13.md) |
 | u14 | Streamlit replay mode (no API key) | past run renders: stepper, transcript, df tabs, metrics chart, reports | `SHOW-WORK` | planned | — |
 | u15 | Streamlit live mode (~2×/s tail) | a live run visibly progresses in the UI; no agent-influencing controls | — | planned | — |
 | u16 | Second-CSV smoke test (stages 1–2, zero code changes) | different-schema CSV completes Cleaner + FE untouched | `NO-HARDCODE` | planned | — |
@@ -96,6 +96,10 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
 - **2026-06-06** — **u12 verified.** `report.py` + composing prompt; real call → 11.6 KB
   `report.md`, all 6 coverage checks PASS, faithful numbers (70.14 % missing, 9.99e10 outlier,
   R² story). Next: **u13** (one-command headless run — milestone).
+- **2026-06-06** — **u13 verified — MILESTONE: one command, all 4 stages, zero human input.**
+  `runs/2026-06-06_23-37-33`: full artifact set, 4 history iters R² −5.17→0.48 (real rescue
+  arc), every execution quoted, MALFORMED recovery proven under fire. Next: **u14** (Streamlit
+  replay).
 
 ## Resume here
 
