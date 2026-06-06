@@ -33,7 +33,7 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
 | u01 | Project scaffold (uv `pyproject.toml`, `.gitignore`, `.env.example`, package skeleton) | `uv sync` ok; `import automl_team` ok; `runs/`/`.env` ignored | — | verified | [u01](units/u01.md) |
 | u02 | Fetch + commit official dataset with fingerprint check | CSV committed; 1246×23 + known dirt markers confirmed | — | verified | [u02](units/u02.md) |
 | u03 | `EventLog` (`events.jsonl` writer, 9 event types) + console renderer | pytest round-trips all event types; readable console lines | `SHOW-WORK` | verified | [u03](units/u03.md) |
-| u04 | Orchestrator skeleton (run-dir, raw snapshot, stage sequencing) | dummy no-LLM run creates `runs/<ts>/` with snapshot + ordered events | — | planned | — |
+| u04 | Orchestrator skeleton (run-dir, raw snapshot, stage sequencing) | dummy no-LLM run creates `runs/<ts>/` with snapshot + ordered events | — | verified | [u04](units/u04.md) |
 | u05 | Gemini wiring + generic agent loop (**nag: API key**) | toy agent: call → result → `finish`, fully logged, real API | `NO-HARDCODE` `SHOW-WORK` | planned | — |
 | u06 | Cleaner toolset (generic verbs) | pytest drives every tool on the real CSV, no LLM | `NO-HARDCODE` | planned | — |
 | u07 | Cleaner stage green on real dataset | `01_clean_data.csv` + decisions-table report; transcript traceable | `NO-HARDCODE` `SHOW-WORK` | planned | — |
@@ -62,6 +62,9 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
 - **2026-06-06** — **u03 verified.** `events.py` (EventLog + read_events) + `console.py` renderer;
   9 round-trip tests, suite 15-green. pytest needed `pythonpath = ["."]` in pyproject (flat
   layout). Next: **u04** (orchestrator skeleton).
+- **2026-06-06** — **u04 verified.** `handoff.py` + `orchestrator.py` (run-dir, snapshot, generic
+  fingerprint, stage sequencing, failure path); 4 tests, suite 19-green; real-CSV dummy run OK.
+  Next: **u05** (Gemini wiring — key already present in `.env`, verify before nagging).
 
 ## Resume here
 
