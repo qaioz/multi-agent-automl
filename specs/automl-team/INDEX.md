@@ -44,7 +44,7 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
 | u12 | Report stage (one LLM call → `report.md`) | report covers raw → transformations → iteration metrics → limitations | `SHOW-WORK` | verified | [u12](units/u12.md) |
 | u13 | One-command headless run (milestone) | `run_pipeline.py --data …` completes all stages, full artifact set | — | verified | [u13](units/u13.md) |
 | u14 | Streamlit replay mode (no API key) | past run renders: stepper, transcript, df tabs, metrics chart, reports | `SHOW-WORK` | verified | [u14](units/u14.md) |
-| u15 | Streamlit live mode (~2×/s tail) | a live run visibly progresses in the UI; no agent-influencing controls | — | planned | — |
+| u15 | Streamlit live mode (~2×/s tail) | a live run visibly progresses in the UI; no agent-influencing controls | — | verified | [u15](units/u15.md) |
 | u16 | Second-CSV smoke test (stages 1–2, zero code changes) | different-schema CSV completes Cleaner + FE untouched | `NO-HARDCODE` | planned | — |
 | u17 | Exhibit + hardening (**nag: human quality judgment**) | hardcode-grep clean; exhibit run committed to `examples/` + replayable; README done; human approved | `NO-HARDCODE` `SHOW-WORK` | planned | — |
 
@@ -103,6 +103,9 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
 - **2026-06-06** — **u14 verified.** `ui.py` replay renderer; AppTest proves keyless replay of
   the milestone run (38 bubbles / 94 expanders / 4 dataframes / metrics chart); run list
   mtime-sorted. Suite 72-green. Next: **u15** (live mode).
+- **2026-06-06** — **u15 verified.** Live mode = same renderer in `st.fragment(run_every=0.5)`;
+  growing-log progression + read-only-ness both AppTest-proven; real server boots healthy.
+  Suite 74-green. Next: **u16** (second-CSV smoke).
 
 ## Resume here
 

@@ -173,8 +173,16 @@ def main() -> None:
                 "`uv run python run_pipeline.py --data data/IT_Salary_Survey_EU_2020.csv`")
         return
     selected = st.sidebar.selectbox("Run", [str(p) for p in runs])
-    st.sidebar.caption("Replay mode — renders a finished run; no API key needed.")
-    render_run(Path(selected))
+    mode = st.sidebar.radio("Mode", ["Replay", "Live (tail)"],
+                            help="Live re-reads events.jsonl about twice a second. "
+                                 "Both modes are read-only windows onto the run.")
+    if mode == "Live (tail)":
+        st.sidebar.caption("⟳ tailing events.jsonl ~2×/s — watch a running pipeline.")
+        live_render = st.fragment(render_run, run_every=0.5)
+        live_render(Path(selected))
+    else:
+        st.sidebar.caption("Replay mode — renders a finished run; no API key needed.")
+        render_run(Path(selected))
 
 
 main()
