@@ -72,6 +72,16 @@ runs/                      # gitignored
    it's also exactly what the grader uses on `examples/`. Live mode is then "same renderer, tail
    the file ~2×/s".
 
+**Insights discovered while building** (kept current by the loop):
+
+- **(u06)** `gemini-2.5-flash` readily calls tools with **no text part at all** on simple tasks —
+  SHOW-WORK reasoning only appears reliably when the prompt demands it explicitly and per-call,
+  in *both* system prompt and task ("in every response that calls a tool, also include a short
+  plain-text sentence explaining WHY"). All stage prompts (u07/u09/u11) must carry this clause;
+  transcript inspection in those units must check it held.
+- **(u06)** pandas 3.0 (`3.0.3` locked): text columns read as dtype `str`, not `object` — dtype
+  checks must use `is_string_dtype` *and* `is_object_dtype`.
+
 **Risks → de-risking in this plan:**
 
 | Risk | Where handled |

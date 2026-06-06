@@ -50,28 +50,36 @@ def test_toy_agent_full_round_trip(tmp_path):
         agent_name="toy",
         system_prompt=(
             "You are a test agent. You MUST use your tools for any string operation — "
-            "never compute results yourself. Briefly state your plan in text before calling "
-            "tools. When done, call finish with a one-line markdown report."
+            "never compute results yourself. IMPORTANT: in every response that calls a "
+            "tool, also include a short plain-text sentence explaining WHY, before the "
+            "call. When done, call finish with a one-line markdown report."
         ),
-        task="Reverse the string 'automl' using your tool, then finish, stating the result.",
+        task=(
+            "Reverse the string 'automl' using your tool, then finish, stating the "
+            "result. Remember: each tool call must be accompanied by one sentence of "
+            "plain-text rationale."
+        ),
         tools=[reverse_tool(calls)],
         log=EventLog(log_path),
         max_turns=6,
     )
 
-    # Loop completed via finish, tool really ran
+    # Loop completed via finish, tool really ran (invariants, not exact
+    # sequences — the model may legitimately vary its path)
     assert result.finished
-    assert calls == ["automl"]
+    assert "automl" in calls
     assert result.report_markdown.strip()
 
     events = read_events(log_path)
     types = [e["type"] for e in events]
 
-    # every arrow logged: the tool call + its result, then finish + acceptance
-    tool_calls = [e for e in events if e["type"] == ev.TOOL_CALL]
-    assert [c["payload"]["tool"] for c in tool_calls] == ["reverse_string", FINISH]
-    reverse_result = next(e for e in events if e["type"] == ev.TOOL_RESULT)
-    assert reverse_result["payload"]["result"] == "lmotua"
+    # every arrow logged: ≥1 reverse_string call before finish, its verbatim
+    # result, and finish acceptance as the final event
+    tool_seq = [e["payload"]["tool"] for e in events if e["type"] == ev.TOOL_CALL]
+    assert "reverse_string" in tool_seq and tool_seq[-1] == FINISH, tool_seq
+    assert tool_seq.index("reverse_string") < tool_seq.index(FINISH)
+    results = [e["payload"] for e in events if e["type"] == ev.TOOL_RESULT]
+    assert any(r["tool"] == "reverse_string" and r["result"] == "lmotua" for r in results)
     assert events[-1]["payload"] == {"tool": FINISH, "result": "accepted"}
 
     # reasoning text captured (prompt demands a stated plan)

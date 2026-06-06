@@ -35,7 +35,7 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
 | u03 | `EventLog` (`events.jsonl` writer, 9 event types) + console renderer | pytest round-trips all event types; readable console lines | `SHOW-WORK` | verified | [u03](units/u03.md) |
 | u04 | Orchestrator skeleton (run-dir, raw snapshot, stage sequencing) | dummy no-LLM run creates `runs/<ts>/` with snapshot + ordered events | — | verified | [u04](units/u04.md) |
 | u05 | Gemini wiring + generic agent loop (**nag: API key**) | toy agent: call → result → `finish`, fully logged, real API | `NO-HARDCODE` `SHOW-WORK` | verified | [u05](units/u05.md) |
-| u06 | Cleaner toolset (generic verbs) | pytest drives every tool on the real CSV, no LLM | `NO-HARDCODE` | planned | — |
+| u06 | Cleaner toolset (generic verbs) | pytest drives every tool on the real CSV, no LLM | `NO-HARDCODE` | verified | [u06](units/u06.md) |
 | u07 | Cleaner stage green on real dataset | `01_clean_data.csv` + decisions-table report; transcript traceable | `NO-HARDCODE` `SHOW-WORK` | planned | — |
 | u08 | Feature-Engineer toolset | pytest drives every FE tool, no LLM | `NO-HARDCODE` | planned | — |
 | u09 | Feature-Engineer stage green | `02_engineered_data.csv` with ≥1 justified domain feature | `NO-HARDCODE` `SHOW-WORK` | planned | — |
@@ -69,6 +69,10 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
   nagging). `llm.py` + `agent.py` (generic loop, finish_guard hook, malformed-call feedback);
   SDK surface verified against installed google-genai 2.8.0; 3 tests (2 live), suite 22-green;
   live toy transcript eyeballed. Next: **u06** (Cleaner toolset, no LLM).
+- **2026-06-06** — **u06 verified.** `tools/cleaner.py` (6 generic verbs), 16 real-CSV tests,
+  suite 38-green. Two insights → plan.md: pandas-3 `str` dtype; flash needs an explicit per-call
+  rationale demand or it skips text parts (u05 toy test was flaky — hardened, 5/5 stable). All
+  stage prompts must carry the rationale clause. Next: **u07** (Cleaner stage green, real LLM).
 
 ## Resume here
 
