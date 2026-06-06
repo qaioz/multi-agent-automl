@@ -162,6 +162,12 @@ def run_agent(
                 types.Part.from_function_response(name=name, response={"result": result_str})
             )
 
+        remaining = max_turns - turn
+        if remaining == 5:
+            response_parts.append(types.Part(
+                text="[harness] Only 5 turns remain in your budget. Prioritize what is "
+                     "left and reserve a turn to call finish(report_markdown)."
+            ))
         history.append(types.Content(role="user", parts=response_parts))
 
     log.emit(agent_name, ev.ERROR, message=f"turn cap ({max_turns}) reached without finish")
