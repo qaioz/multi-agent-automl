@@ -40,7 +40,7 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
 | u08 | Feature-Engineer toolset | pytest drives every FE tool, no LLM | `NO-HARDCODE` | verified | [u08](units/u08.md) |
 | u09 | Feature-Engineer stage green | `02_engineered_data.csv` with ≥1 justified domain feature | `NO-HARDCODE` `SHOW-WORK` | verified | [u09](units/u09.md) |
 | u10 | Sandboxed `execute_python_code` (120 s, verbatim capture) | pytest: ok / crash / timeout cases return verbatim output | `SHOW-WORK` | verified | [u10](units/u10.md) |
-| u11 | **Trainer stage green (feedback loop — centerpiece)** | ≥2 executions, each followed by reasoning quoting the output; history ≥2 iters; min-2/max-6 enforced | `NO-HARDCODE` `SHOW-WORK` | planned | — |
+| u11 | **Trainer stage green (feedback loop — centerpiece)** | ≥2 executions, each followed by reasoning quoting the output; history ≥2 iters; min-2/max-6 enforced | `NO-HARDCODE` `SHOW-WORK` | verified | [u11](units/u11.md) |
 | u12 | Report stage (one LLM call → `report.md`) | report covers raw → transformations → iteration metrics → limitations | `SHOW-WORK` | planned | — |
 | u13 | One-command headless run (milestone) | `run_pipeline.py --data …` completes all stages, full artifact set | — | planned | — |
 | u14 | Streamlit replay mode (no API key) | past run renders: stepper, transcript, df tabs, metrics chart, reports | `SHOW-WORK` | planned | — |
@@ -88,6 +88,11 @@ only at `verified`. Work top-to-bottom: **the current unit is the first not-`ver
 - **2026-06-06** — **u10 verified.** `tools/sandbox.py` (venv interpreter, run-dir cwd,
   timeout→stderr, verbatim events + truncated agent view, `code_iter_n.py` artifacts); 7 tests
   green first run; suite 61-green. Next: **u11 — the Trainer centerpiece.**
+- **2026-06-06** — **u11 verified — the centerpiece is green.** Found+fixed flash's
+  `MALFORMED_FUNCTION_CALL` on big code args (forced calling + reserved `reasoning` arg →
+  plan insight). Real run: 5 executions rc `[0,1,1,1,0]`, every reaction quotes output
+  (SyntaxError/XGBoostError/R² verbatim), history 2 iters R² 0.9706→0.9800, leakage
+  self-detected, guardrails pytest-proven. Suite 70-green. Next: **u12** (report stage).
 
 ## Resume here
 

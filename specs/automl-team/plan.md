@@ -81,6 +81,12 @@ runs/                      # gitignored
   transcript inspection in those units must check it held.
 - **(u06)** pandas 3.0 (`3.0.3` locked): text columns read as dtype `str`, not `object` — dtype
   checks must use `is_string_dtype` *and* `is_object_dtype`.
+- **(u11)** flash emits `MALFORMED_FUNCTION_CALL` (empty candidate) near-deterministically when a
+  tool argument is a large multi-line code string in free-form (AUTO) mode. Fix: **forced
+  function calling (`mode='ANY'`)** = constrained decoding → always-valid calls. Forced mode
+  suppresses text parts, so the loop supports a harness-reserved **`reasoning` argument** on any
+  tool: logged as a `reasoning` event, stripped before dispatch. The Trainer uses both; the empty-
+  parts recovery now also names MALFORMED in its feedback.
 
 **Risks → de-risking in this plan:**
 

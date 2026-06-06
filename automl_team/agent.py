@@ -71,12 +71,19 @@ def run_agent(
     log: EventLog,
     max_turns: int = DEFAULT_MAX_TURNS,
     finish_guard: Optional[Callable[[str], Optional[str]]] = None,
+    force_function_calling: bool = False,
 ) -> AgentResult:
     """Run one agent to completion.
 
     finish_guard(report_markdown) -> error string to *reject* the finish call
     (returned to the agent as the tool result — e.g. the Trainer's
     min-2-executions rule), or None to accept it.
+
+    force_function_calling: use the SDK's constrained decoding (mode ANY) —
+    needed when a tool takes large code strings, which flash otherwise mangles
+    into MALFORMED_FUNCTION_CALL. Forced mode suppresses plain-text parts, so
+    such tools should declare a 'reasoning' argument: it is harness-reserved —
+    logged as a `reasoning` event and stripped before the tool fn is called.
     """
     client = get_client()
     model = get_model()
@@ -91,6 +98,9 @@ def run_agent(
     config = types.GenerateContentConfig(
         system_instruction=system_prompt,
         tools=[types.Tool(function_declarations=declarations)],
+        tool_config=types.ToolConfig(
+            function_calling_config=types.FunctionCallingConfig(mode="ANY")
+        ) if force_function_calling else None,
     )
 
     history: list[types.Content] = [
@@ -103,11 +113,17 @@ def run_agent(
         candidate = response.candidates[0] if response.candidates else None
         parts = list(candidate.content.parts or []) if candidate and candidate.content else []
         if not parts:
-            log.emit(agent_name, ev.ERROR, message=f"model returned no parts (turn {turn})")
-            history.append(types.Content(role="user", parts=[types.Part(
-                text="Your last reply was empty. Continue your task: call a tool, "
-                     "or call finish(report_markdown) if you are done."
-            )]))
+            reason = str(candidate.finish_reason) if candidate else "no candidate"
+            log.emit(agent_name, ev.ERROR,
+                     message=f"model returned no parts (turn {turn}, {reason})")
+            hint = (
+                "Your last function call was malformed and could not be parsed. "
+                "Re-issue it carefully: arguments must be plain JSON values."
+                if "MALFORMED" in reason else
+                "Your last reply was empty. Continue your task: call a tool, "
+                "or call finish(report_markdown) if you are done."
+            )
+            history.append(types.Content(role="user", parts=[types.Part(text=hint)]))
             continue
 
         history.append(candidate.content)
@@ -130,6 +146,9 @@ def run_agent(
         for call in calls:
             name = call.name or "?"
             args = dict(call.args or {})
+            rationale = args.pop("reasoning", None)  # harness-reserved argument
+            if rationale:
+                log.emit(agent_name, ev.REASONING, text=str(rationale))
             log.emit(agent_name, ev.TOOL_CALL, tool=name, args=args)
 
             if name == FINISH:

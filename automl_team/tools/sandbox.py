@@ -41,6 +41,7 @@ class Sandbox:
         self.agent_name = agent_name
         self.timeout = timeout
         self.executions = 0
+        self.last: dict | None = None  # raw {iteration, returncode, stdout, stderr}
 
     def execute_python_code(self, code: str) -> str:
         self.executions += 1
@@ -68,6 +69,8 @@ class Sandbox:
                 f"no waiting/loops) and try again."
             )
 
+        self.last = {"iteration": n, "returncode": returncode,
+                     "stdout": stdout, "stderr": stderr}
         self.log.emit(
             self.agent_name, ev.EXECUTION,
             iteration=n, returncode=returncode, stdout=stdout, stderr=stderr,
